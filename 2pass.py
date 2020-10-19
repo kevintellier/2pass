@@ -6,11 +6,16 @@ import pyperclip
 import json
 import hashlib
 import time
+import random
+from string import printable
 from getpass import getpass
-from Crypto import Random
 from Crypto.Cipher import AES
 
 COMMANDS = ["ls","create","rm","add"]
+
+#Generate random password
+def generate_password():
+    return ''.join(random.choices(printable,k=12))
 
 #Add padding and returns a 32 bytes padded string
 def pad(s):
@@ -19,13 +24,13 @@ def pad(s):
 #Encrypt a string and returns a random generated iv + encrypted message with AES_CBC 
 def encrypt(message, key):
     message = pad(message)
-    iv = Random.new().read(AES.block_size)
+    iv = hashlib.md5(key.encode()).digest()
     cipher = AES.new(key, AES.MODE_CBC, iv)
     return iv+cipher.encrypt(message)
 
 #Decrypt a message encrypted with AES_CBC and removes padding
 def decrypt(ciphertext, key):
-    iv = ciphertext[:AES.block_size]
+    iv = hashlib.md5(key.encode()).digest()
     cipher = AES.new(key, AES.MODE_CBC, iv)
     plaintext = cipher.decrypt(ciphertext[AES.block_size:])
     return plaintext.rstrip(b"\0")
@@ -137,6 +142,8 @@ def add_password(filename):
     password = getpass("Password: ")
     login = input("Login: ")
     url = input("URL: ")
+    if len(password) == 0:
+        password = generate_password()
     if len(password) > 100:
         print("Password too long",file=sys.stderr)
         sys.exit()
