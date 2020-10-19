@@ -17,14 +17,14 @@ def pad(s):
     return s.encode() + b"\0" * (AES.block_size - len(s) % AES.block_size)
 
 #Encrypt a string and returns a random generated iv + encrypted message with AES_CBC 
-def encrypt(message, key, keysize=256):
+def encrypt(message, key):
     message = pad(message)
     iv = Random.new().read(AES.block_size)
     cipher = AES.new(key, AES.MODE_CBC, iv)
     return iv+cipher.encrypt(message)
 
 #Decrypt a message encrypted with AES_CBC and removes padding
-def decrypt(ciphertext, key, keysize=256):
+def decrypt(ciphertext, key):
     iv = ciphertext[:AES.block_size]
     cipher = AES.new(key, AES.MODE_CBC, iv)
     plaintext = cipher.decrypt(ciphertext[AES.block_size:])
@@ -137,6 +137,9 @@ def add_password(filename):
     password = getpass("Password: ")
     login = input("Login: ")
     url = input("URL: ")
+    if len(password) > 100:
+        print("Password too long",file=sys.stderr)
+        sys.exit()
     if len(title) < 1 or len(password) < 1 or len(login) < 1 or len(url) < 1:
         print("Some arguments are wrong",file=sys.stderr)
         sys.exit()
@@ -222,7 +225,6 @@ def main(argv,argc):
             remove_password(f,i)
             sys.exit()
         if args[0] == "create" and ('o' in locals()):
-            print(o)
             create_vault(o)
             sys.exit()
     print("Not a command or wrong arguments, see help -h",file=sys.stderr)
