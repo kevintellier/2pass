@@ -214,8 +214,11 @@ def main(argv,argc):
             else:
                 o=arg
     print("2pass v0.1 (17-10-2020)")
-    if len(args) != 1:
-        print("Check number of args",file=sys.stderr)
+    if len(args) < 1:
+        print("Please enter a command, see -h",file=sys.stderr)
+        sys.exit()
+    if len(args) > 1:
+        print("Too much commands, see -h",file=sys.stderr)
         sys.exit()
     if args[0] in COMMANDS:
         if args[0] == "ls" and ('f' in locals()):
