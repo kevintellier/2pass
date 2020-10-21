@@ -25,13 +25,13 @@ def pad(s):
 def encrypt(message, key):
     message = pad(message)
     iv = hashlib.md5(key.encode()).digest()
-    cipher = AES.new(key, AES.MODE_CBC, iv)
+    cipher = AES.new(key.encode("utf-8"), AES.MODE_CBC, iv)
     return iv+cipher.encrypt(message)
 
 #Decrypt a message encrypted with AES_CBC and removes padding
 def decrypt(ciphertext, key):
     iv = hashlib.md5(key.encode()).digest()
-    cipher = AES.new(key, AES.MODE_CBC, iv)
+    cipher = AES.new(key.encode("utf-8"), AES.MODE_CBC, iv)
     plaintext = cipher.decrypt(ciphertext[AES.block_size:])
     return plaintext.rstrip(b"\0")
 
@@ -82,8 +82,9 @@ def check_vault(filename,key):
         sys.exit()
     vault = json.loads(decrypt_file(filename,key))
     if "data" not in vault:
-        print("Vault format error !")
-        sys.exit()
+    	print(vault)
+    	print("Vault format error !")
+    	sys.exit()
     return vault
 
 #Read vault and print it
@@ -99,7 +100,7 @@ def read_vault(filename):
         for passw in vault["data"]:
             print(str(passw["id"]) + "\t" + passw["title"] + "\t" + passw["login"] + "\t" + passw["URL"])
     except KeyError:
-        print("Vault format error !",file=sys.stderr)
+    	print("Vault format error !",file=sys.stderr)
     sys.exit()
 
 #Read password from vault by it's id
@@ -110,13 +111,13 @@ def read_password(filename,id):
         print("Vault empty !")
         sys.exit()
     try:
-        pyperclip.copy(vault["data"][id]["password"])
-        print("Password copied in the paperclip, clearing in 10s")
-        time.sleep(10)
-        pyperclip.copy("")  
+    	pyperclip.copy(vault['data'][id]["password"])
+    	print("Password copied in the paperclip, clearing in 10s")
+    	time.sleep(10)
+    	pyperclip.copy("")  
     except KeyError:
-        print("Vault format error !",file=sys.stderr)
-        sys.exit()
+    	print("le password est " + vault['data'][id]["password"])
+    	sys.exit()
     except IndexError:
         print("Unknown ID",file=sys.stderr)
         sys.exit()
