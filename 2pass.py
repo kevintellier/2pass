@@ -111,12 +111,9 @@ def read_password(filename,id):
         print("Vault empty !")
         sys.exit()
     try:
-    	pyperclip.copy(vault['data'][id]["password"])
-    	print("Password copied in the paperclip, clearing in 10s")
-    	time.sleep(10)
-    	pyperclip.copy("")  
+        print("le password est " + vault['data'][id]["password"])
+        sys.exit()
     except KeyError:
-    	print("le password est " + vault['data'][id]["password"])
     	sys.exit()
     except IndexError:
         print("Unknown ID",file=sys.stderr)
