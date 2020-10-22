@@ -23,6 +23,8 @@ def pad(s):
 
 #Encrypt a string and returns a random generated iv + encrypted message with AES_CBC 
 def encrypt(message, key):
+    assert(key != None and len(key) == 16,"Error")
+    assert(message != None,"Error")
     message = pad(message)
     iv = hashlib.md5(key.encode()).digest()
     cipher = AES.new(key, AES.MODE_CBC, iv)
@@ -30,20 +32,35 @@ def encrypt(message, key):
 
 #Decrypt a message encrypted with AES_CBC and removes padding
 def decrypt(ciphertext, key):
+    assert(key != None and len(key) == 16,"Error")
+    assert(ciphertext != None,"Error")
     iv = hashlib.md5(key.encode()).digest()
     cipher = AES.new(key, AES.MODE_CBC, iv)
-    plaintext = cipher.decrypt(ciphertext[AES.block_size:])
-    return plaintext.rstrip(b"\0")
+    try:
+        plaintext = cipher.decrypt(ciphertext[AES.block_size:])
+        return plaintext.rstrip(b"\0")
+    except ValueError:
+        print("Error while decoding",file=sys.stderr)
+        sys.exit()
 
 #Compute integrity of data, concats hash with data, calls encrypt and save the result in a file
 def encrypt_file(data, filename, key):
+    assert(data != None,"Error")
+    assert(filename != None and os.path.isfile(filename),"Error")
+    assert(key != None and len(key) == 16,"Error")
+    
     h = hashlib.sha256(data.encode()).hexdigest()
     cipher = encrypt(h+data,key)
-    with open(filename,"wb") as f:
-        f.write(cipher)
+    try:
+        with open(filename,"wb") as f:
+            f.write(cipher)
+    except OSError:
+        print("Error with file",file=sys.stderr)
 
 #Open a vault file, call decrypt, check integrity and returns data if integrity is checked
 def decrypt_file(filename, key):
+    assert(filename != None and os.path.isfile(filename),"Error")
+    assert(key != None and len(key) == 16,"Error")
     try:
         with open(filename,"rb") as f:
             ciphertext = f.read()
@@ -51,13 +68,16 @@ def decrypt_file(filename, key):
     except EnvironmentError:
         print("No such file or directory",file=sys.stderr)
         sys.exit()
+        
     try:
         h = dec.decode()[:64]
         data = dec.decode()[64:]
     except UnicodeDecodeError:
         print("Can't decode file, check your key",file=sys.stderr)
         sys.exit()
+    assert(h == hashlib.sha256(data.encode()).hexdigest(),"Error")
     if hashlib.sha256(data.encode()).hexdigest() == h:
+        assert(data != None,"Error")
         return data
     else:
         print("File's integrity compromised",file=sys.stderr)
@@ -77,6 +97,8 @@ def print_help():
 
 #Check if the vault's format is correct
 def check_vault(filename,key):
+    assert(filename != None and os.path.isfile(filename),"Error")
+    assert(key != None and len(key) == 16,"Error")
     if len(key) != 16:
         print("Wrong key size !",file=sys.stderr)
         sys.exit()
@@ -88,7 +110,9 @@ def check_vault(filename,key):
 
 #Read vault and print it
 def read_vault(filename):
-    key = getpass("Please enter key: ")
+    assert(filename != None and os.path.isfile(filename),"Error")
+    #key = getpass("Please enter key: ")
+    key = input("Please enter key: ")
     vault = check_vault(filename,key)
     if len(vault["data"]) == 0:
         print("Vault empty !")
@@ -104,8 +128,12 @@ def read_vault(filename):
 
 #Read password from vault by it's id
 def read_password(filename,id):
-    key = getpass("Please enter key: ")
+    #key = getpass("Please enter key: ")
+    assert(filename != None and os.path.isfile(filename),"Error")
+    assert(id != None,"Error")
+    key = input("Please enter key: ")
     vault = check_vault(filename,key)
+    print(vault)
     if len(vault["data"]) == 0:
         print("Vault empty !")
         sys.exit()
@@ -123,10 +151,12 @@ def read_password(filename,id):
 
 #Creates a vault from a given file
 def create_vault(outputfile):
+    assert(outputfile != None and os.path.isfile(outputfile),"Error")
     data = json.dumps({
         "data":[]
     })
-    key = getpass("Please enter key: ")
+    #key = getpass("Please enter key: ")
+    key = input("Please enter key: ")
     if len(key) != 16:
         print("Wrong key size !",file=sys.stderr)
         sys.exit()
@@ -136,10 +166,13 @@ def create_vault(outputfile):
 
 #Add password to the vault
 def add_password(filename):
-    key = getpass("Please enter key: ")
+    assert(filename != None and os.path.isfile(filename),"Error")
+    #key = getpass("Please enter key: ")
+    key = input("Please enter key: ")
     vault = check_vault(filename,key)
     title = input("Title: ")
-    password = getpass("Password: ")
+    #password = getpass("Password: ")
+    password = input("Password: ")
     login = input("Login: ")
     url = input("URL: ")
     if len(password) == 0:
@@ -166,7 +199,10 @@ def add_password(filename):
 
 #Removes password from a vault 
 def remove_password(filename,id):
-    key = getpass("Please enter key: ")
+    assert(filename != None and os.path.isfile(filename),"Error")
+    assert(id != None,"Error")
+    #key = getpass("Please enter key: ")
+    key = input("Please enter key: ")
     vault = check_vault(filename,key)
     try:
         del vault["data"][id]
