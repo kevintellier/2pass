@@ -7,7 +7,7 @@ import json
 import hashlib
 import time
 import random
-from string import printable
+from string import ascii_lowercase, ascii_uppercase, digits
 from getpass import getpass
 from Crypto.Cipher import AES
 
@@ -15,7 +15,7 @@ COMMANDS = ["ls","create","rm","add"]
 
 #Generate random password
 def generate_password():
-    return ''.join(random.choices(printable,k=12))
+    return ''.join(random.choices(ascii_lowercase+ascii_uppercase+digits+"?"+"."+"'"+"+"+")"+"("+"&"+"["+"]"+"!"+"#"+"_"+"%"+"$"+"@"+"|"+"*"+":"+"="+"~",k=12))
 
 #Add padding and returns a 32 bytes padded string
 def pad(s):
@@ -89,7 +89,7 @@ def check_vault(filename,key):
 
 #Read vault and print it
 def read_vault(filename):
-    key = getpass("Please enter key: ")
+    key = getpass("Please enter your 16 chars key: ")
     vault = check_vault(filename,key)
     if len(vault["data"]) == 0:
         print("Vault empty !")
@@ -127,7 +127,7 @@ def create_vault(outputfile):
     data = json.dumps({
         "data":[]
     })
-    key = getpass("Please enter key: ")
+    key = getpass("Please choose your 16 chars key, it'll be your vault password: ")
     if len(key) != 16:
         print("Wrong key size !",file=sys.stderr)
         sys.exit()
@@ -137,9 +137,10 @@ def create_vault(outputfile):
 
 #Add password to the vault
 def add_password(filename):
-    key = getpass("Please enter key: ")
+    key = getpass("Please enter your 16 chars key: ")
     vault = check_vault(filename,key)
     title = input("Title: ")
+    print("just enter if you want a randomly created password")
     password = getpass("Password: ")
     login = input("Login: ")
     url = input("URL: ")
@@ -171,6 +172,13 @@ def remove_password(filename,id):
     vault = check_vault(filename,key)
     try:
         del vault["data"][id]
+        for i in vault["data"]:
+            if i["id"]>=id:
+                i["id"] = i["id"]-1
+
+
+
+
     except IndexError:
         print("Unknown ID",file=sys.stderr)
         sys.exit()
