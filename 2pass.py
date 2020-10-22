@@ -32,7 +32,11 @@ def encrypt(message, key):
 def decrypt(ciphertext, key):
     iv = hashlib.md5(key.encode()).digest()
     cipher = AES.new(key.encode("utf-8"), AES.MODE_CBC, iv)
-    plaintext = cipher.decrypt(ciphertext[AES.block_size:])
+    try:
+        plaintext = cipher.decrypt(ciphertext[AES.block_size:])
+    except ValueError:
+        print("coffre compromis")
+        sys.exit()
     return plaintext.rstrip(b"\0")
 
 #Compute integrity of data, concats hash with data, calls encrypt and save the result in a file
