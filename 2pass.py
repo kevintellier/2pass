@@ -69,7 +69,7 @@ def decrypt_file(filename, key):
 
 #Print help menu
 def print_help():
-    print("2pass v0.1 (17-10-2020). Usage :")
+    print("2pass v1 (23-10-2020). Usage :")
     print("2pass [-f inputFile] [-o inputFile] [-i passwordID] [-h] command")
     print("    -f Vault file containing passwords")
     print("    -o Output vault inputFile name")
