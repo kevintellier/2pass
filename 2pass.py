@@ -252,4 +252,8 @@ def main(argv,argc):
     sys.exit()
 
 if __name__ == "__main__" :
-    main(sys.argv, len(sys.argv))
+    try:
+        main(sys.argv, len(sys.argv))
+    except KeyboardInterrupt:
+        print("stopped")
+        sys.exit()
