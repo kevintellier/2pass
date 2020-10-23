@@ -2,10 +2,8 @@
 import sys
 import os
 import getopt
-import pyperclip
 import json
 import hashlib
-import time
 import random
 from string import ascii_lowercase, ascii_uppercase, digits
 from getpass import getpass
@@ -15,13 +13,15 @@ COMMANDS = ["ls","create","rm","add"]
 
 #Generate random password
 def generate_password():
-    return ''.join(random.choices(ascii_lowercase+ascii_uppercase+digits+"?"+"."+"'"+"+"+")"+"("+"&"+"["+"]"+"!"+"#"+"_"+"%"+"$"+"@"+"|"+"*"+":"+"="+"~",k=12))
+    return ''.join(random.choices(ascii_lowercase+ascii_uppercase+digits
+        +"?"+"."+"'"+"+"+")"+"("+"&"+"["+"]"+"!"+"#"+"_"
+        +"%"+"$"+"@"+"|"+"*"+":"+"="+"~",k=12))
 
 #Add padding and returns a 32 bytes padded string
 def pad(s):
     return s.encode() + b"\0" * (AES.block_size - len(s) % AES.block_size)
 
-#Encrypt a string and returns a random generated iv + encrypted message with AES_CBC 
+#Encrypt a string and returns a random generated iv + encrypted message with AES_CBC
 def encrypt(message, key):
     message = pad(message)
     iv = hashlib.md5(key.encode()).digest()
@@ -86,9 +86,9 @@ def check_vault(filename,key):
         sys.exit()
     vault = json.loads(decrypt_file(filename,key))
     if "data" not in vault:
-    	print(vault)
-    	print("Vault format error !")
-    	sys.exit()
+        print(vault)
+        print("Vault format error !")
+        sys.exit()
     return vault
 
 #Read vault and print it
@@ -102,9 +102,10 @@ def read_vault(filename):
         print("id" + "\t" + "title" + "\t" + "login" + "\t" + "URL")
         print("-"*42)
         for passw in vault["data"]:
-            print(str(passw["id"]) + "\t" + passw["title"] + "\t" + passw["login"] + "\t" + passw["URL"])
+            print(str(passw["id"]) + "\t" + passw["title"]
+             + "\t" + passw["login"] + "\t" + passw["URL"])
     except KeyError:
-    	print("Vault format error !",file=sys.stderr)
+        print("Vault format error !",file=sys.stderr)
     sys.exit()
 
 #Read password from vault by it's id
@@ -118,7 +119,7 @@ def read_password(filename,id):
         print("le password est " + vault['data'][id]["password"])
         sys.exit()
     except KeyError:
-    	sys.exit()
+        sys.exit()
     except IndexError:
         print("Unknown ID",file=sys.stderr)
         sys.exit()
@@ -167,7 +168,7 @@ def add_password(filename):
     print("Entry successfully added !")
     sys.exit()
 
-#Removes password from a vault 
+#Removes password from a vault
 def remove_password(filename,id):
     key = getpass("Please enter key: ")
     vault = check_vault(filename,key)
@@ -195,22 +196,22 @@ def main(argv,argc):
     except getopt.GetoptError:
         print("Bad usage see help -h",file=sys.stderr)
         sys.exit()
-    for opt,arg in opts: 
-        if opt in ('-h'):
+    for opt,arg in opts:
+        if opt in '-h':
             print_help()
             sys.exit()
-        if opt in ('-f'):
+        if opt in '-f':
             if not os.path.isfile(arg):
                 print("File not found",file=sys.stderr)
                 sys.exit()
             f=arg
-        if opt in ('-i'):
+        if opt in '-i':
             try:
                 i=int(arg)
             except ValueError:
                 print("-i not an integer",file=sys.stderr)
                 sys.exit()
-        if opt in ('-o'):
+        if opt in '-o':
             if os.path.isfile(arg):
                 while 1:
                     c = input("File already exists do you want to overwrite it ? (y/n)")
